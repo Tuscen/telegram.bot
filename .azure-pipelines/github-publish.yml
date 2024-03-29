@@ -48,5 +48,4 @@ steps:
       --source "https://nuget.pkg.github.com/$(githubFeed)/index.json"
       --api-key $(GithubPAT)
       --skip-duplicate
-      --source GitHub
     displayName: Publish package to Github Packages
