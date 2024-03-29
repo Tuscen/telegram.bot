@@ -15,10 +15,9 @@ pr: none
 
 variables:
   - template: variables.yml
+  - group: GithubPAT
   - name: githubFeed
-    value: tuscen
-  - name: githubPAT
-    value: $(GithubPAT)
+    value: Telegram.Bot/Telegram.Bot
 
 pool:
   vmImage: $(vmImage)
@@ -42,12 +41,12 @@ steps:
       --configuration $(buildConfiguration)
       -p:Version=$(releaseVersion)
       $(projectPath)
-    displayName: Create release nuget package
+    displayName: Create nuget package
   - pwsh: >
       dotnet nuget push
       $(Build.ArtifactStagingDirectory)/packages/*.nupkg
       --source "https://nuget.pkg.github.com/$(githubFeed)/index.json"
-      --api-key $(githubPAT)
+      --api-key $(GithubPAT)
       --skip-duplicate
       --source GitHub
     displayName: Publish package to Github Packages
