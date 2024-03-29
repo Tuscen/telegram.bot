@@ -15,8 +15,8 @@ pr: none
 
 variables:
   - template: variables.yml
-  - name: githubOrganization
-    value: Telegram.Bot/Telegram.Bot
+  - name: githubFeed
+    value: tuscen
   - name: githubPAT
     value: $(GithubPAT)
 
@@ -44,16 +44,9 @@ steps:
       $(projectPath)
     displayName: Create release nuget package
   - pwsh: >
-      dotnet nuget add source
-      --name "GitHub"
-      --source "https://nuget.pkg.github.com/$(githubOrganization)/index.json"
-      --username $(githubOrganization)
-      --password $(githubPAT)
-      --store-password-in-clear-text
-    displayName: Add Github Nuget feed to Nuget sources
-  - pwsh: >
       dotnet nuget push
       $(Build.ArtifactStagingDirectory)/packages/*.nupkg
+      --source "https://nuget.pkg.github.com/$(githubFeed)/index.json"
       --api-key $(githubPAT)
       --skip-duplicate
       --source GitHub
