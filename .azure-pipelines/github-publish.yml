@@ -1,0 +1,53 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  paths:
+    exclude:
+      - '.github'
+      - docs
+      - README.md
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+
+pr: none
+
+variables:
+  - template: variables.yml
+  - name: githubFeed
+    value: tuscen
+  - name: githubPAT
+    value: $(GithubPAT)
+
+pool:
+  vmImage: $(vmImage)
+
+steps:
+  - task: UseDotNet@2
+    displayName: Install .NET sdk
+    inputs:
+      packageType: sdk
+      version: $(netSdkVersion)
+  - pwsh: >
+      dotnet build
+      --configuration $(buildConfiguration)
+      -p:Version=$(releaseVersion)
+      $(projectPath)
+    displayName: Build project with release version
+  - pwsh: >
+      dotnet pack
+      --no-build
+      --output "$(Build.ArtifactStagingDirectory)/packages"
+      --configuration $(buildConfiguration)
+      -p:Version=$(releaseVersion)
+      $(projectPath)
+    displayName: Create release nuget package
+  - pwsh: >
+      dotnet nuget push
+      $(Build.ArtifactStagingDirectory)/packages/*.nupkg
+      --source "https://nuget.pkg.github.com/$(githubFeed)/index.json"
+      --api-key $(githubPAT)
+      --skip-duplicate
+      --source GitHub
+    displayName: Publish package to Github Packages
